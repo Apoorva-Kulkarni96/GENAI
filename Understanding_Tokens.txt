@@ -1,0 +1,9 @@
+Understanding Tokens
+
+Thumb rule in typical English writing
+
+1 Token ~ 4char
+! token ~ 0.75 word
+So 1000 tokens ~750 words
+
+Token count is higher 
