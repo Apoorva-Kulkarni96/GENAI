@@ -41,21 +41,3 @@ Two implementations — same logic, different tool-calling approach.
 
 ---
 
-## 🚀 Setup
-
-```bash
-# Clone
-git clone https://github.com/yourname/keyword-extraction.git
-cd keyword-extraction
-
-# Install dependencies
-
-# V1
-pip install gradio openai rake-nltk
-
-# V2
-pip install gradio langchain langchain-ollama rake-nltk
-
-# NLTK data (both versions)
-python -m nltk.downloader stopwords punkt
-```
