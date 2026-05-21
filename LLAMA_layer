@@ -1,0 +1,37 @@
+Things to Remember 
+
+Modern day transformers only have decoder layers
+
+Decoder in LLAMA architecture has 3 chunks
+-> attention layer
+-> MLP 
+-> layer norm 
+
+
+Attention :
+
+learn about above layer by what it should be looking , 4 things
+q ->What am I looking for? — A vector representing the current token's current question or search criteria.
+k ->What do I contain? — A vector representing what a token can offer. The model multiplies Queries (Q) by Keys (K) to create an Attention Matrix (a map of how much every word cares about every other word).
+v ->What is my actual content? — The actual information that gets extracted. Once the $Q \times K$ map decides where to look, it pulls the information from the Value vector 
+o -> Takes the blended information from all the attention heads, mixes it back together, and projects it back into the model's standard hidden size so it can be passed to the next layer.
+
+MLP :
+Connecting above and below layer
+
+upproj -> Expands the hidden dimension to give the network more "thinking capacity" to compute complex features.
+gate -> Creates a filter path. It applies the SiLU (Sigmoid Linear Unit) non-linear activation function to decide which values are important enough to pass through.
+down_proj -> Compresses the expanded dimension back down to the original hidden size so it can travel up the Transformer stack.
+activation -> SiLU()
+
+layer norm:
+number behave themselves
+
+LM head
+
+The LM Head (Language Model Head)
+The Exit Door: Sitting at the very top of all 32 layers is a single linear layer called the LM Head.
+
+The Math: It takes the final hidden vector (size 4,096) of the very last token and projects it up to the size of Llama's vocabulary (128,256 tokens).
+
+The Output: It outputs raw unnormalized scores (logits) for every single possible word in its dictionary. A Softmax function is then applied to turn those scores into clear percentage probabilities, allowing you to sample the final next word!
