@@ -14,6 +14,8 @@ class Retriever:
         self.embeddings = self.embedding_model.encode(self.document)
         self.index = faiss.IndexFlatL2(self.embeddings.shape[1])
         self.index.add(self.embeddings)
+
+        
     def retrieve(self, query:str, k:int):
 
         if self.embeddings is None or self.document is None:
