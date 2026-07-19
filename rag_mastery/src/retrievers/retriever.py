@@ -12,7 +12,8 @@ class Retriever:
     def fit(self, document:str):
         self.document = document
         self.embeddings = self.embedding_model.encode(self.document)
-        self.index = faiss.IndexFlatL2(self.embeddings.shape[1])
+        #self.index = faiss.IndexFlatL2(self.embeddings.shape[1])
+        self.index = faiss.IndexHNSWFlat(self.embeddings.shape[1])
         self.index.add(self.embeddings)
 
         
