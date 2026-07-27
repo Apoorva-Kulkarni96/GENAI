@@ -1,0 +1,21 @@
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message":"Hello"}
+
+from fastapi import FastAPI — You're importing the FastAPI class from the fastapi library. A class is a blueprint. FastAPI is the blueprint for building a web application.
+
+app = FastAPI() — You're creating one instance of that blueprint. This app object is your entire web server. Every route, every setting, everything attaches to this one object. Notice Uvicorn's command 
+
+is main:app — that literally means "go into main.py, find the variable called app".
+
+
+@app.get("/") — This is a decorator. It's the most important concept in FastAPI. A decorator wraps a function and adds behaviour to it. This one says: "When someone makes a GET request to the URL /, run the function below." The "/" is the path — just like a file path. / means the root, like the homepage.
+
+def home(): — This is just a regular Python function. The name home doesn't matter — FastAPI doesn't care what you call it. What matters is the decorator above it.
+return {"message": "Hello World"} — You're returning a Python dictionary. FastAPI automatically converts it to JSON and sends it back as the HTTP response. You don't have to do
+
+json.dumps() yourself — FastAPI handles that.
