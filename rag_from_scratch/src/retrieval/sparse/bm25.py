@@ -1,6 +1,6 @@
 from inverted_index import InvertedIndex
 from tokenizer import tokenize
-
+import numpy as np
 
 def calculate_idf(query,documents):
     words = tokenize(query)
@@ -19,7 +19,7 @@ def calculate_idf(query,documents):
             
 def calculate_tfbm(query, document, documents):
     k1 =0.7
-    b = 0.0
+    b = 0.5
     tfbm = []
     words = tokenize(query)
     for word in words:
@@ -48,8 +48,25 @@ def calculate_bm25(query, document, documents):
     idf_list = calculate_idf(query,documents)
     for tf, idf in zip(tf_list, idf_list):
         bm25 += tf * idf
-    return bm25
 
+    return bm25
+def retrieve(query, documents, top_k):
+    scores= []
+    for idx, document in enumerate(documents):
+        score = calculate_bm25(query, document, documents)
+        scores.append(score)
+    top_k_scores = np.argsort(scores)[::-1][:top_k]
+    result = []
+
+    for idx in top_k_scores:
+        result.append(
+            {
+                "doc_id": f"Doc_{idx}",
+                "score" : scores[idx]
+
+            }
+        )
+    return result
 if __name__ == "__main__":
     documents = [
             "FAISS is a vector search library",
@@ -65,7 +82,4 @@ if __name__ == "__main__":
     docB = documents[1]
     docC = documents[3]
 
-    print(calculate_bm25(query_doc, docA, documents))
-    print(calculate_bm25(query_doc, docB, documents))
-    print(calculate_bm25(query_doc, documents[2], documents))
-    print(calculate_bm25(query_doc, docC, documents))
+    print(retrieve(query_doc,documents,3))
