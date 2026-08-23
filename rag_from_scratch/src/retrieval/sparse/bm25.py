@@ -1,23 +1,25 @@
 from inverted_index import InvertedIndex
 from tokenizer import tokenize
-import numpy as np
 
-def calculate_idf(query,documents):
-    words = tokenize(query)
-    idf_doc = []
-    total_document = len(documents)
+def build_index(documents):
     obj = InvertedIndex()
     index = obj.add(documents)
+    return index
+
+def calculate_idf(query,total_documents,index):
+    words = tokenize(query)
+    idf_doc = [] 
+
     for word in words:
         if word not in index:
             idf_doc.append(0.0)
         elif word in index:
             value = index[word]
             df = len(value)
-            idf_doc.append(total_document/df)
+            idf_doc.append(total_documents/df)
     return idf_doc
             
-def calculate_tfbm(query, document, documents):
+def calculate_tfbm(query, document,avgdl):
     k1 =0.7
     b = 0.5
     tfbm = []
@@ -26,7 +28,6 @@ def calculate_tfbm(query, document, documents):
         tf = 0
         terms = tokenize(document)
         doc_length = len(terms)
-        avgdl = calculate_avgdl(documents)
         for term in terms:
             if term == word:
                 tf += 1
@@ -42,30 +43,58 @@ def calculate_avgdl(documents):
 
     return avgdl/documents_len
 
-def calculate_bm25(query, document, documents):
+def calculate_bm25(query, document, documents, index, avgdl, total_documents):
     bm25 = 0
-    tf_list = calculate_tfbm(query, document, documents)
-    idf_list = calculate_idf(query,documents)
+    tf_list = calculate_tfbm(query, document,avgdl)
+    idf_list = calculate_idf(query,total_documents,index)
     for tf, idf in zip(tf_list, idf_list):
         bm25 += tf * idf
 
     return bm25
+
+def get_candidates(query,index):
+    candidate_id = set()
+
+    terms = tokenize(query)
+    for term in terms:
+        if term in index:
+            val = index[term]
+            for idx in val:
+                candidate_id.add(idx)
+    return candidate_id
+
+
+
+    
 def retrieve(query, documents, top_k):
-    scores= []
-    for idx, document in enumerate(documents):
-        score = calculate_bm25(query, document, documents)
-        scores.append(score)
-    top_k_scores = np.argsort(scores)[::-1][:top_k]
+    index = build_index(documents)
+    candidate_ids = get_candidates(query, index)
+    avgdl = calculate_avgdl(documents)
+    total_document = len(documents)
+    scores = []
+
+    for doc_id in candidate_ids:
+        score = calculate_bm25(
+            query,
+            documents[doc_id],
+            documents,
+            index,
+            avgdl, 
+            total_document
+        )
+        scores.append((doc_id, score))
+    scores.sort(key=lambda x: x[1], reverse=True)
+
+    top_k_scores = scores[:top_k]
+
     result = []
 
-    for idx in top_k_scores:
-        result.append(
-            {
-                "doc_id": f"Doc_{idx}",
-                "score" : scores[idx]
+    for doc_id, score in top_k_scores:
+        result.append({
+            "doc_id": f"Doc_{doc_id}",
+            "score": score
+        })
 
-            }
-        )
     return result
 if __name__ == "__main__":
     documents = [
@@ -77,9 +106,7 @@ if __name__ == "__main__":
     
    
     query_doc = "FAISS is developed by Facebook"
-    keyword = "FAISS"
-    docA = documents[0]
-    docB = documents[1]
-    docC = documents[3]
+
 
     print(retrieve(query_doc,documents,3))
+    #print(get_candidates(query_doc,documents))
