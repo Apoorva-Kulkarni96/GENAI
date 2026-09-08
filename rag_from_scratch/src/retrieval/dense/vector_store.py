@@ -7,7 +7,6 @@ class VectorStore:
         self.model = SentenceTransformer("all-MiniLM-L6-v2")
         self.document_vectors = self.model.encode(self.documents)
         
-
     def cosine_similarity(self, v1, v2):
         dot_product = np.dot(v1,v2)
         mag_v1 = np.linalg.norm(v1)
@@ -30,27 +29,13 @@ class VectorStore:
             scores.append(score)
 
         top_scores = np.argsort(scores)[::-1][:top_k]
-
+      
         for idx in top_scores:
             result.append({
-                "doc_id": idx,
-                "score": scores[idx]
+                "doc_id": f"Doc_{int(idx)}",
+                "document": self.documents[idx],
+                "score": float(scores[idx])
             })
 
         return result
         
-
-
-
-if __name__ == "__main__":
-    documents = [
-            "FAISS is a vector search library",
-            "HNSW is a graph algorithm",
-            "Product Quantization compresses vectors",
-            "FAISS is FAST"
-        ]
-    
-   
-    query_doc = "FAISS is developed by Facebook"
-    obj = VectorStore(documents)
-    print(obj.search(query_doc, 3))

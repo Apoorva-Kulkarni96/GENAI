@@ -23,26 +23,3 @@ def top_k_retrieval(query_embedding, embeddings, documents, ids, metadata, k):
         ]
         
     return result
-
-if __name__ == "__main__":
-
-    documents = [
-        "FAISS is a vector search library",
-        "HNSW is a graph algorithm",
-        "Product Quantization compresses vectors"
-    ]
-
-    embeddings = [
-        [0.1, 0.4, 0.8],
-        [0.9, 0.2, 0.1],
-        [0.2, 0.5, 0.7]
-    ]
-    query_embedding = [0.2, 0.5, 0.8]
-    result = top_k_retrieval(
-        query_embedding,
-        embeddings,
-        documents,
-        k=2
-    )
-
-    print(result)

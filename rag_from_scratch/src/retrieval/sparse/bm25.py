@@ -1,6 +1,6 @@
-from inverted_index import InvertedIndex
-from tokenizer import tokenize
-
+from retrieval.sparse.inverted_index import InvertedIndex
+from retrieval.sparse.tokenizer import tokenize
+import math
 def build_index(documents):
     obj = InvertedIndex()
     index = obj.add(documents)
@@ -16,7 +16,10 @@ def calculate_idf(query,total_documents,index):
         elif word in index:
             value = index[word]
             df = len(value)
-            idf_doc.append(total_documents/df)
+            idf = math.log(
+                1 + (total_documents - df + 0.5) / (df + 0.5)
+            )
+            idf_doc.append(idf)
     return idf_doc
             
 def calculate_tfbm(query, document,avgdl):
@@ -92,21 +95,8 @@ def retrieve(query, documents, top_k):
     for doc_id, score in top_k_scores:
         result.append({
             "doc_id": f"Doc_{doc_id}",
+            "document" : documents[doc_id],
             "score": score
         })
 
     return result
-if __name__ == "__main__":
-    documents = [
-            "FAISS is a vector search library",
-            "HNSW is a graph algorithm",
-            "Product Quantization compresses vectors",
-            "FAISS is FAST"
-        ]
-    
-   
-    query_doc = "FAISS is developed by Facebook"
-
-
-    print(retrieve(query_doc,documents,3))
-    #print(get_candidates(query_doc,documents))

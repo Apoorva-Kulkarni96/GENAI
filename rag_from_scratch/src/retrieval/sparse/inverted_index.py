@@ -1,4 +1,4 @@
-from tokenizer import tokenize
+from retrieval.sparse.tokenizer import tokenize
 
 class InvertedIndex:
     def __init__(self):
@@ -14,14 +14,5 @@ class InvertedIndex:
         return self.index
 
 
-if __name__ == "__main__":
-    documents = [
-            "FAISS is a vector search library",
-            "HNSW is a graph algorithm",
-            "Product Quantization compresses vectors",
-            "FAISS is FAST"
-        ]
 
-    obj = InvertedIndex()
-    #print(obj.add(documents))
 
