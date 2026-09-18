@@ -14,7 +14,6 @@ class RAGPipeline:
         self.obj_gen = Generator(self.model)
 
     def ask(self, query, top_k):
-        
         results_dense = self.obj_den.search(query, top_k)
         results_sparse = retrieve(query, self.documents, top_k)
         sparse_ranks = get_ranks(results_sparse)
@@ -23,7 +22,7 @@ class RAGPipeline:
         context = build_context(results)
         prompt = build_prompt(query, context)
         response = self.obj_gen.generator(prompt)
-        return response
+        return response, results
     
 if __name__ == "__main__":
     documents = [
@@ -34,10 +33,10 @@ if __name__ == "__main__":
         ]
     
    
-    #query_doc = "FAISS is developed by Facebook"
+    #query_doc = "FAISS is developed by Facebook"vleat
     query_doc = "What is FAISS?"
     rag = RAGPipeline(documents, "gemma:2b")
-    answer = rag.ask(query_doc, 3)
+    answer,_ = rag.ask(query_doc, 3)
     print(answer)
 
 
