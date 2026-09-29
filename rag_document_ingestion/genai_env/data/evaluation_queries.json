@@ -1,0 +1,73 @@
+[
+  {
+    "id": "q1",
+    "question": "Why does overlap help when chunking documents?",
+    "relevant_sections": [
+      "3. Chunking"
+    ]
+  },
+  {
+    "id": "q2",
+    "question": "How does recursive chunking decide where to split text?",
+    "relevant_sections": [
+      "3. Chunking"
+    ]
+  },
+  {
+    "id": "q3",
+    "question": "Why can semantic chunking be more expensive than fixed chunking?",
+    "relevant_sections": [
+      "3. Chunking"
+    ]
+  },
+  {
+    "id": "q4",
+    "question": "Why use small child chunks with a larger parent in RAG?",
+    "relevant_sections": [
+      "4. Parent-Document and Small-to-Big Retrieval"
+    ]
+  },
+  {
+    "id": "q5",
+    "question": "How does vector retrieval perform semantic search?",
+    "relevant_sections": [
+      "5. Embeddings and Vector Retrieval"
+    ]
+  },
+  {
+    "id": "q6",
+    "question": "Why use a reranker after vector retrieval?",
+    "relevant_sections": [
+      "6. Reranking"
+    ]
+  },
+  {
+    "id": "q7",
+    "question": "Why can BM25 help with technical terms and error codes?",
+    "relevant_sections": [
+      "7. Hybrid Retrieval"
+    ]
+  },
+  {
+    "id": "q8",
+    "question": "What does Recall@K measure in RAG evaluation?",
+    "relevant_sections": [
+      "8. Retrieval Evaluation"
+    ]
+  },
+  {
+    "id": "q9",
+    "question": "How can a RAG system detect a scanned PDF page?",
+    "relevant_sections": [
+      "9. Production Considerations"
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "Why can large chunks reduce retrieval precision?",
+    "relevant_sections": [
+      "3. Chunking",
+      "4. Parent-Document and Small-to-Big Retrieval"
+    ]
+  }
+]

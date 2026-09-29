@@ -1,0 +1,85 @@
+RAG SYSTEMS: A PRACTICAL CORPUS FOR CHUNKING EVALUATION
+
+1. Introduction to Retrieval-Augmented Generation
+
+Retrieval-Augmented Generation, or RAG, combines information retrieval with language generation. Instead of asking a language model to answer every question only from information stored in its parameters, a RAG system retrieves relevant external information and provides that information to the model as context.
+
+A typical RAG pipeline contains document ingestion, parsing, chunking, embedding, indexing, retrieval, optional reranking, and generation. The quality of the final answer depends on several of these stages. In particular, poor document extraction or poor chunk boundaries can prevent the retriever from finding the evidence required to answer a question.
+
+RAG is especially useful when the source information changes frequently or when an organization needs answers grounded in private documents. Examples include technical documentation, product manuals, policies, support tickets, and internal knowledge bases.
+
+2. Document Ingestion
+
+Document ingestion converts source files into machine-readable content. A PDF may contain native text, tables, images, scanned pages, headers, footers, and multiple columns. A robust ingestion pipeline therefore should not assume that every page can be treated as plain text.
+
+PyMuPDF is useful for fast native PDF text extraction. pdfplumber is useful when layout and table extraction require more detailed handling. For scanned pages, OCR can convert the visual page into machine-readable text. Tesseract is a common open-source OCR engine, while PaddleOCR is another open-source option that can provide recognized text together with useful positional information.
+
+Tables require special handling because plain text extraction can destroy the relationship between rows and columns. A table can be extracted separately, validated, normalized, and represented as Markdown so that its structure remains understandable to a language model.
+
+Metadata is also important during ingestion. Useful metadata can include the source filename, page number, section heading, document type, email date, sender, or spreadsheet sheet name. Metadata is not only useful for citations; it can also support filtering during retrieval.
+
+3. Chunking
+
+Chunking divides a document into smaller units that can be indexed and retrieved. A fixed-size strategy splits text using a predetermined character or token size. For example, a system might create chunks of 500 tokens with 50 tokens of overlap.
+
+Overlap helps preserve information around chunk boundaries. If a sentence or fact falls near the end of one chunk, some of that information can appear in the next chunk as well. However, excessive overlap creates redundant chunks, increases storage, and can cause duplicate context during retrieval.
+
+Recursive chunking uses a hierarchy of separators. It may first try to split on paragraph boundaries, then line boundaries, then spaces, and finally individual characters if a piece remains too large. This approach attempts to preserve document structure before resorting to finer-grained splits.
+
+Semantic chunking focuses on meaning rather than only document structure. Text is first divided into smaller candidate units, such as sentences. Embeddings are generated for those units and neighboring units are compared. When semantic similarity drops below a chosen threshold, a new chunk can be started.
+
+Semantic chunking can produce more meaningful boundaries, but it requires additional computation during ingestion because candidate units must be embedded and compared. It is therefore not automatically better for every document or application.
+
+4. Parent-Document and Small-to-Big Retrieval
+
+Parent-document retrieval separates the unit used for retrieval from the unit used for generation. A document can be divided into small child chunks, and embeddings can be created for those children. Each child stores a parent identifier in metadata.
+
+During retrieval, the vector database searches the small child chunks. If a child is relevant, its parent identifier is used to fetch a larger parent section or document. The larger parent context can then be passed to the language model.
+
+This approach addresses a common trade-off. Small chunks can provide focused embeddings and precise retrieval, but a small chunk may not contain enough surrounding information for the language model to answer correctly. Large chunks provide more context but can contain several topics, which can dilute the representation used for retrieval.
+
+5. Embeddings and Vector Retrieval
+
+An embedding model converts text into a numerical vector that represents semantic information. A query can also be converted into a vector. Vector retrieval compares the query vector with document or chunk vectors and returns the most similar candidates.
+
+Cosine similarity is commonly used to compare embedding vectors. A higher cosine similarity generally indicates that two vectors point in more similar directions. Vector retrieval is therefore often described as semantic search because it can retrieve text with related meaning even when the exact query words are not present.
+
+For example, a query asking how BERT hides words during training may retrieve a passage describing masked language modeling even if the passage does not contain the phrase "hide words."
+
+6. Reranking
+
+Vector retrieval is fast and is useful for finding a candidate set, but its similarity ordering is not always the best final relevance ordering. A reranker can take the query and each retrieved candidate together and produce a more detailed relevance score.
+
+A common reranking architecture is a cross-encoder. Unlike a bi-encoder used for many vector databases, a cross-encoder receives the query and candidate text together. It can model interactions between the query and candidate more directly, but evaluating many candidates is more computationally expensive.
+
+A practical pipeline can therefore retrieve a larger candidate set using vector search and then rerank only those candidates. For example, a system may retrieve the top 20 or 50 candidates and rerank them before passing the best few results to the language model.
+
+Using the same embedding model and the same cosine similarity calculation a second time would not provide a fundamentally different reranking stage. A useful reranker normally uses a different relevance-scoring mechanism.
+
+7. Hybrid Retrieval
+
+Vector retrieval is not always sufficient. Keyword-based methods such as BM25 can be strong when exact terms matter. Examples include product identifiers, error codes, model numbers, function names, and technical terminology.
+
+Hybrid retrieval combines signals from keyword search and vector search. One common approach is to retrieve candidates from both systems and combine their rankings. Reciprocal Rank Fusion, or RRF, is one method for combining ranked lists.
+
+The goal of hybrid retrieval is to capture both semantic similarity and exact lexical matches. The appropriate balance depends on the corpus and query types.
+
+8. Retrieval Evaluation
+
+RAG retrieval should be evaluated rather than judged only by looking at a few examples. A test set can contain user questions and the documents or sections that are considered relevant to each question.
+
+Recall@K measures whether relevant information appears within the top K retrieved results. Precision@K measures how much of the top K retrieved set is relevant. Mean Reciprocal Rank, or MRR, focuses on the position of the first relevant result.
+
+For chunking experiments, the important principle is to keep the evaluation conditions consistent. The same corpus, queries, embedding model, retrieval method, and evaluation definitions should be used when comparing fixed, recursive, semantic, and parent-document strategies.
+
+A result table can then show how each strategy affects retrieval quality. The goal is not to assume that one strategy always wins, but to measure which approach works best for the specific corpus and query set.
+
+9. Production Considerations
+
+Real ingestion pipelines have failure modes. PDFs can be encrypted, corrupted, malformed, or scanned. An application should handle extraction errors and may check whether a PDF requires a password before attempting extraction.
+
+A scanned page can often be detected when native text extraction returns almost no text despite the page containing visible content. Such a page can be routed to OCR. Headers, footers, and repeated page numbers can also pollute chunks and may need to be filtered using page positions or repeated-text detection.
+
+Other document formats have their own issues. DOCX and PPTX extraction can involve reading-order problems when documents contain complex layouts or grouped elements. HTML that depends heavily on JavaScript may require rendered content rather than raw HTML. Email threads can contain repeated quoted replies, so deduplication may be necessary.
+
+Chunking also has production trade-offs. Smaller chunks can improve retrieval precision but increase the number of indexed chunks. Larger chunks preserve more context but may dilute retrieval relevance. Semantic chunking can improve semantic boundaries but increases ingestion computation. Parent-document retrieval adds storage and lookup complexity in exchange for precise child retrieval and richer parent context.
