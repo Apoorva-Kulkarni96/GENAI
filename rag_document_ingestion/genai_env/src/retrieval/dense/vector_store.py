@@ -16,13 +16,25 @@ class VectorStore:
             return 0.0
         return dot_product/(mag_v1*mag_v2)
     
-    def search(self, query, top_k):
+    def search(self, query, top_k, section=None):
+
         scores = []
         result = []
 
+        if section is not None:
+            indices = [
+                i
+                for i, doc in enumerate(self.documents)
+                if doc["metadata"]["section"] == section
+            ]
+        else:
+            indices = list(range(len(self.documents)))
+
+        filtered_documents = self.document_vectors[indices]
+
         query_vector = self.model.encode(query)
 
-        for document_vector in self.document_vectors:
+        for document_vector in filtered_documents:
             score = self.cosine_similarity(
                 query_vector,
                 document_vector
@@ -30,13 +42,18 @@ class VectorStore:
             scores.append(score)
 
         top_scores = np.argsort(scores)[::-1][:top_k]
-      
+
         for idx in top_scores:
+
+            original_index = indices[idx]
+
+            doc = self.documents[original_index]
+
             result.append({
-                "doc_id": f"Doc_{int(idx)}",
-                "document": self.documents[idx],
+                "doc_id": doc["doc_id"],
+                "document": doc,
                 "score": float(scores[idx])
             })
 
         return result
-        
+            

@@ -18,7 +18,7 @@ class RAGPipeline:
     def ask(self, query, top_k, mode="hybrid"):
 
         if mode == "dense":
-            results = self.obj_den.search(query, top_k)
+            results = self.obj_den.search(query, top_k, section="3. Chunking")
 
         elif mode == "bm25":
             results = retrieve(query, self.documents, top_k)
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     documents = [
         {
-
+            "doc_id": f"Doc_{i}",
             "text": chunk["text"],
             "metadata": {
                 "source": "rag_corpus.txt",
@@ -70,7 +70,7 @@ if __name__ == "__main__":
                 "section": chunk["section"]
             }
         }
-        for chunk in chunks
+        for i, chunk in enumerate(chunks)
     ]
 
     rag = RAGPipeline(documents, "gemma:2b")
